@@ -1,21 +1,31 @@
 // src/lib/supabase.js
-import { createClient } from '@supabase/supabase-js';
+import { createBrowserClient } from '@supabase/ssr';
 
-// Sanitize inputs by trimming whitespace and stripping quotes
-const getEnv = (key) => {
-  const val = process.env[key];
-  if (!val) return '';
-  return val.replace(/^["']|["']$/g, '').trim();
+let client = null;
+
+export const getSupabase = () => {
+  if (client) return client;
+
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!url || !key) {
+    console.error('Supabase keys missing:', { url: !!url, key: !!key });
+  }
+
+  client = createBrowserClient(url || '', key || '');
+  return client;
 };
 
-const supabaseUrl = getEnv('NEXT_PUBLIC_SUPABASE_URL');
-const supabaseAnonKey = getEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY');
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('CRITICAL: Supabase URL or Anon Key is missing from environment!');
-}
-
-export const supabase = createClient(
-  supabaseUrl || 'https://placeholder.supabase.co',
-  supabaseAnonKey || 'placeholder-key'
+// Export proxy instance for backward compatibility with your existing imports
+export const supabase = new Proxy(
+  {},
+  {
+    get: (target, prop) => {
+      const instance = getSupabase();
+      return typeof instance[prop] === 'function'
+        ? instance[prop].bind(instance)
+        : instance[prop];
+    },
+  }
 );
