@@ -17,8 +17,6 @@ export default function AdminDashboard() {
   const [maxSpots, setMaxSpots] = useState('4');
 
   useEffect(() => {
-    console.log('URL defined?:', !!process.env.NEXT_PUBLIC_SUPABASE_URL);
-    console.log('KEY defined?:', !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
     fetchAdminSessions();
   }, []);
 

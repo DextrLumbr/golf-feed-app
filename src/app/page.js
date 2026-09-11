@@ -13,6 +13,8 @@ export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
+    console.log('URL defined?:', !!process.env.NEXT_PUBLIC_SUPABASE_URL);
+    console.log('KEY defined?:', !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
     checkUser();
   }, []);
 
